@@ -1,7 +1,6 @@
-streamlit
-warnings
+streamlet
 numpy
 pandas
-matplotlib.pyplot
+matplotlib
 seaborn
-sklearn
+scikit-learn
