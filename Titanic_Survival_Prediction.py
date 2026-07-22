@@ -198,13 +198,13 @@ with tab2:
         elif sib0 > sib1 and sib0 > sib2:
             reason="Passengers with no siblings or spouse had a higher chance of survival than the ones with one or two siblings or spouse."  
         else:
-            reason="Having siblings/spouse had no effect on the passenger survival."
+            reason="Having one or two siblings/spouse had no effect on the passenger survival."
         if sib0 < sib4 and sib0 <sibinf:
-            reason1="Passengers with no siblings or spouse had a lower chance of survival than the ones with more than three siblings or spouse."
+            reason1="Passengers with no siblings or spouse had a lower chance of survival than the ones with more than two siblings or spouse."
         elif sib0 > sib4 and sib0 > sibinf:
-            reason1="Passengers with no siblings or spouse had a higher chance of survival than the ones with more than three siblings or spouse."  
+            reason1="Passengers with no siblings or spouse had a higher chance of survival than the ones with more than two siblings or spouse."  
         else:
-            reason1="Having siblings/spouse had no effect on the passenger survival."
+            reason1="Having more than two siblings/spouse had no effect on the passenger survival."
         surv0 = train[(train['Siblings_Spouse_On_Board'] == 0) & (train['Survived'] == 'Yes')].shape[0]
         surv1 = train[(train['Siblings_Spouse_On_Board'] == 1) & (train['Survived'] == 'Yes')].shape[0]
         surv2 = train[(train['Siblings_Spouse_On_Board'] == 2) & (train['Survived'] == 'Yes')].shape[0]
@@ -263,17 +263,17 @@ with tab2:
         if lowest_par == 0:
             lowest_par = "no"
         if par0 < par1 and par0 <par2 and par0 < par3:
-            reason="Passengers with no parents or children had a lower chance of survival than the ones with one or two parents or children."
-        elif par0 > par1 and par0 > par2 and par0 < par3:
-            reason="Passengers with no parents or children had a higher chance of survival than the ones with one or two parents or children."  
+            reason="Passengers with no parents or children had a lower chance of survival than the ones with less than four parents or children."
+        elif par0 > par1 and par0 > par2 and par0 > par3:
+            reason="Passengers with no parents or children had a higher chance of survival than the ones with less than four parents or children."  
         else:
-            reason="Having parents/children had no effect on the passenger survival."
+            reason="Having less than four parents/children had no effect on the passenger survival."
         if par0 <par4 and par0 <par5:
-            reason1="Passengers with no parents or children had a lower chance of survival than the ones with more than four three parents or children."
+            reason1="Passengers with no parents or children had a lower chance of survival than the ones with more than three three parents or children."
         elif par0 > par4 and par0 > par5:
-            reason1="Passengers with no parents or children had a higher chance of survival than the ones with more than four parents or children."  
+            reason1="Passengers with no parents or children had a higher chance of survival than the ones with more than three parents or children."  
         else:
-            reason1="Having parents/children had no effect on the passenger survival."
+            reason1="Having more than four parents/children had no effect on the passenger survival."
         surv0 = train[(train['Parents_Children_On_Board'] == 0) & (train['Survived'] == 'Yes')].shape[0]
         surv1 = train[(train['Parents_Children_On_Board'] == 1) & (train['Survived'] == 'Yes')].shape[0]
         surv2 = train[(train['Parents_Children_On_Board'] == 2) & (train['Survived'] == 'Yes')].shape[0]
