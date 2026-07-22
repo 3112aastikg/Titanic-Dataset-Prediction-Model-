@@ -1,4 +1,4 @@
-Passenger_ID,Class,Name,Gender,Age (Years),Siblings_Spouse_On_Board,Parents_Childern_On_Board,Ticket,Fare (GBP),Cabin,Embarked
+Passenger_ID,Class,Name,Gender,Age (Years),Siblings_Spouse_On_Board,Parents_Children_On_Board,Ticket,Fare (GBP),Cabin,Embarked
 892,Third,"Kelly, Mr. James",Male,34.5,0,0,330911,7.8292,,Queenstown
 893,Third,"Wilkes, Mrs. James (Ellen Needs)",Female,47,1,0,363272,7,,Southampton
 894,Second,"Myles, Mr. Thomas Francis",Male,62,0,0,240276,9.6875,,Queenstown

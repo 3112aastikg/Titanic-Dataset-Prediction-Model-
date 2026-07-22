@@ -8,9 +8,9 @@ plt.style.use('fivethirtyeight')
 warnings.filterwarnings('ignore')
 st.set_page_config(layout="wide")
 st.title("Titanic Survival Prediction") #title of the dashboard
-st.write("This is a machine learning model that predicts the survival of passengers on the RMS Titanic based on various factors like gender, age, class, fare, title, and embarked. The model is trained on the Titanic dataset and can be used to predict the survival of passengers in the test dataset. There are several passengers in the dataset, with some passengers' survival outcomes already documented, while others' survival outcomes haven't been documented.")
+st.write("This is a machine learning model that predicts the survival of passengers on the RMS Titanic based on various factors like gender, age, class, fare, family on board, title, and embarked. The model is trained on the Titanic dataset and can be used to predict the survival of passengers in the test dataset. There are several passengers in the dataset, with some passengers' survival outcomes already documented, while others' survival outcomes haven't been documented.")
 
-df=pd.read_csv("Titanic-Dataset.csv") #titanic dataset, predicted non documented survivors based on factors like gender, age, class, fare, title, and embarked.
+df=pd.read_csv("Titanic-Dataset.csv") #titanic dataset, predicted non documented survivors based on factors like gender, age, class, family on board, fare, title, and embarked.
 #data cleaning like 0,1 changed to Yes/No 1,2,3 changed to First, Second, Third, Column Labels changed, S, C, Q replaced by full city names.
 train = pd.read_csv('train.csv')
 test = pd.read_csv('test.csv') #Train-Test Split, 1-891 for training, 892-1309 for testing.
@@ -22,7 +22,7 @@ with tab1:
         st.dataframe(df)
     st.write("The dataset contains information about **" + str(len(df)) + "** passengers, with **" + str(df['Survived'].eq('Yes').sum() + df['Survived'].eq('No').sum()) + "** survival outcomes documented and **" + str(df['Survived'].isnull().sum()) + "** survival outcomes not documented.")
 with tab2:
-    col1,col2,col3= st.columns(3)
+    col1,col2,col3,col4= st.columns(4)
     with col1:
         st.header("Data Analysis")
         st.write("The data analysis section provides insights into the survival rates of passengers based on various factors.")
@@ -125,9 +125,9 @@ with tab2:
         else:
             direction1 = "approximately symmetric"
         if skewness1 >0:
-            fare="people with higher fare had a higher chance"
+            fare="people with higher fareband had a higher chance"
         elif skewness1<0:
-            fare="people with lower fare had a higher chance"
+            fare="people with lower fareband had a higher chance"
         else: 
             fare="fare had limited or no effect on survival"
         with st.expander("See Insights"):
@@ -140,7 +140,7 @@ with tab2:
             .groupby(['Embarked']).mean()
             .plot.bar(ax=ax[0])) #embarked comparison of survival rate and number of survivors by embarked location
         ax[0].set_title('Survival Rate by Embarked Location')
-        ax[0].set_ylabel('Quantity')
+        ax[0].set_ylabel('Survival Rate')
         ax[0].set_xticklabels(ax[0].get_xticklabels(), rotation=0)
         sns.countplot(x='Embarked', hue='Survived', data=train, ax=ax[1])
         ax[1].set_title('Number of Survivors by Embarked Location') 
@@ -163,7 +163,146 @@ with tab2:
             lowest_embarked = "Queenstown"
         with st.expander("See Insights"):
             st.write("The bar chart shows that the survival rate for passengers who embarked from **Southampton** was **" + str(round(train[train['Embarked'] == 'Southampton']['Survived'].eq('Yes').mean() * 100, 1)) + "%**, while the survival rate for passengers who embarked from **Cherbourg** was **" + str(round(train[train['Embarked'] == 'Cherbourg']['Survived'].eq('Yes').mean() * 100, 1)) + "%** and the survival rate for passengers who embarked from **Queenstown** was **" + str(round(train[train['Embarked'] == 'Queenstown']['Survived'].eq('Yes').mean() * 100, 1)) + "%**. The count plot shows that there were **" + str(train[train['Embarked'] == 'Southampton']['Survived'].eq('No').sum()) + "** non-survivors and **" + str(train[train['Embarked'] == 'Southampton']['Survived'].eq('Yes').sum()) + "** survivors who embarked from Southampton. Meanwhile, there were **" + str(train[train['Embarked'] == 'Cherbourg']['Survived'].eq('No').sum()) + "** non-survivors and **" + str(train[train['Embarked'] == 'Cherbourg']['Survived'].eq('Yes').sum()) + "** survivors who embarked from Cherbourg. Finally, there were **" + str(train[train['Embarked'] == 'Queenstown']['Survived'].eq('No').sum()) + "** non-survivors and **" + str(train[train['Embarked'] == 'Queenstown']['Survived'].eq('Yes').sum()) + "** survivors who embarked from Queenstown. The highest survival rate was for **" + highest_embarked + "**  passengers, while the lowest survival rate was for **" + lowest_embarked + "**  passengers. The location with most survivors embarked was **" + train[train['Survived'] == 'Yes']['Embarked'].mode().iloc[0] + "**.")
-
+    with col4:
+        st.subheader("Sibling/Spouse On Board Analysis")
+        f, ax = plt.subplots(1, 2, figsize=(16, 8))
+        (train.assign(Survived= train['Survived'].eq('Yes'))
+            [['Siblings_Spouse_On_Board', 'Survived']]
+            .groupby(['Siblings_Spouse_On_Board']).mean()
+            .plot.bar(ax=ax[0])) #siblings spouse on board comparison of survival rate and number of survivors with siblings or spouse on board
+        ax[0].set_title('Survival Rate with Siblings/Spouses On Board')
+        ax[0].set_ylabel('Survival Rate')
+        ax[0].set_xticklabels(ax[0].get_xticklabels(), rotation=0)
+        sns.countplot(x='Siblings_Spouse_On_Board', hue='Survived', data=train, ax=ax[1])
+        ax[1].set_title('Number of Survivors with Siblings/Spouses On Board') 
+        ax[1].set_ylabel('Quantity')
+        st.pyplot(f)
+        sib0 = train[train['Siblings_Spouse_On_Board'] == 0]['Survived'].eq('Yes').mean()
+        sib1 = train[train['Siblings_Spouse_On_Board'] == 1]['Survived'].eq('Yes').mean()
+        sib2 = train[train['Siblings_Spouse_On_Board'] == 2]['Survived'].eq('Yes').mean()
+        sib4 = train[train['Siblings_Spouse_On_Board'].isin([3,4])]['Survived'].eq('Yes').mean()
+        sibinf = train[train['Siblings_Spouse_On_Board'] >= 5]['Survived'].eq('Yes').mean()
+        rates = {0: sib0, 1: sib1, 2: sib2, 3: sib4, 5: sibinf}
+        highest_sib = max(rates, key=rates.get)
+        lowest_sib = min(rates, key=rates.get)
+        if highest_sib == 5:
+            highest_sib = "5 or more"
+        if lowest_sib == 5:
+            lowest_sib = "5 or more"
+        if highest_sib == 0:
+            highest_sib = "no"
+        if lowest_sib == 0:
+            lowest_sib = "no"
+        if sib0 < sib1 and sib0 <sib2:
+            reason="Passengers with no siblings or spouse had a lower chance of survival than the ones with one or two siblings or spouse."
+        elif sib0 > sib1 and sib0 > sib2:
+            reason="Passengers with no siblings or spouse had a higher chance of survival than the ones with one or two siblings or spouse."  
+        else:
+            reason="Having siblings/spouse had no effect on the passenger survival."
+        if sib0 < sib4 and sib0 <sibinf:
+            reason1="Passengers with no siblings or spouse had a lower chance of survival than the ones with more than three siblings or spouse."
+        elif sib0 > sib4 and sib0 > sibinf:
+            reason1="Passengers with no siblings or spouse had a higher chance of survival than the ones with more than three siblings or spouse."  
+        else:
+            reason1="Having siblings/spouse had no effect on the passenger survival."
+        surv0 = train[(train['Siblings_Spouse_On_Board'] == 0) & (train['Survived'] == 'Yes')].shape[0]
+        surv1 = train[(train['Siblings_Spouse_On_Board'] == 1) & (train['Survived'] == 'Yes')].shape[0]
+        surv2 = train[(train['Siblings_Spouse_On_Board'] == 2) & (train['Survived'] == 'Yes')].shape[0]
+        surv3 = train[(train['Siblings_Spouse_On_Board'] == 3) & (train['Survived'] == 'Yes')].shape[0]
+        surv4 = train[(train['Siblings_Spouse_On_Board'] == 4) & (train['Survived'] == 'Yes')].shape[0]
+        surv5 = train[(train['Siblings_Spouse_On_Board'] >= 5) & (train['Survived'] == 'Yes')].shape[0]
+        nsurv0 = train[(train['Siblings_Spouse_On_Board'] == 0) & (train['Survived'] == 'No')].shape[0]
+        nsurv1 = train[(train['Siblings_Spouse_On_Board'] == 1) & (train['Survived'] == 'No')].shape[0]
+        nsurv2 = train[(train['Siblings_Spouse_On_Board'] == 2) & (train['Survived'] == 'No')].shape[0]
+        nsurv3 = train[(train['Siblings_Spouse_On_Board'] == 3) & (train['Survived'] == 'No')].shape[0]
+        nsurv4 = train[(train['Siblings_Spouse_On_Board'] == 4) & (train['Survived'] == 'No')].shape[0]
+        nsurv5 = train[(train['Siblings_Spouse_On_Board'] >= 5) & (train['Survived'] == 'No')].shape[0]
+        with st.expander("See Insights"):
+            st.write("The bar chart shows that passengers travelling with **no siblings/spouses** had a survival rate of **" + str(round(sib0 * 100,1)) +
+                "%**, while the passengers travelling with **1 sibling/spouse** had a survival rate of **" + str(round(sib1 * 100,1)) +
+                "%**. Passengers travelling with **2 siblings/spouses** had a survival rate of **" + str(round(sib2 * 100,1)) +
+                "%**. Meanwhile, passengers travelling with **3-4 siblings/spouses** had a survival rate of **" + str(round(sib4 * 100,1)) +
+                "%**. Lastly, passengers travelling with **more than 5 siblings/spouses** had a survival rate of **" + str(round(sibinf * 100,1)) +
+                "%**. The highest survival rate was for passengers travelling with **" +
+                str(highest_sib) + "** sibling(s)/spouse(s), while the lowest survival rate was for passengers travelling with **" +
+                str(lowest_sib) + "** sibling(s)/spouse(s). " + str(reason) + " " + str(reason1) +
+                " There were **" + str(surv0) + "** survivors and **" + str(nsurv0) + "** non-survivors with **no siblings/spouse**, while there were **" +
+                str(surv1) + "** survivors and **" + str(nsurv1) + "** non-survivors with **1 sibling/spouse**, **" + str(surv2) +
+                "** survivors and **" + str(nsurv2) + "** non-survivors with **2 siblings/spouses**, **" + str(surv3) +
+                "** survivors and **" + str(nsurv3) + "** non-survivors with **3 siblings/spouses**, **" + str(surv4) +
+                "** survivors and **" + str(nsurv4) + "** non-survivors with **4 siblings/spouses**, and **" + str(surv5) +
+                "** survivors and **" + str(nsurv5) + "** non-survivors with **5 or more siblings/spouses**.")
+        st.subheader("Parents/Children On Board Analysis")
+        f, ax = plt.subplots(1, 2, figsize=(16, 8))
+        (train.assign(Survived= train['Survived'].eq('Yes'))
+            [['Parents_Children_On_Board', 'Survived']]
+            .groupby(['Parents_Children_On_Board']).mean()
+            .plot.bar(ax=ax[0])) #parents children on board comparison of survival rate and number of survivors with parents or children on board
+        ax[0].set_title('Survival Rate by Parents/Children On Board')
+        ax[0].set_ylabel('Survival Rate')
+        ax[0].set_xticklabels(ax[0].get_xticklabels(), rotation=0)
+        sns.countplot(x='Parents_Children_On_Board', hue='Survived', data=train, ax=ax[1])
+        ax[1].set_title('Number of Survivors with Parents/Children On Board') 
+        ax[1].set_ylabel('Quantity')
+        st.pyplot(f)
+        par0 = train[train['Siblings_Spouse_On_Board'] == 0]['Survived'].eq('Yes').mean()
+        par1 = train[train['Siblings_Spouse_On_Board'] == 1]['Survived'].eq('Yes').mean()
+        par2 = train[train['Siblings_Spouse_On_Board'] == 2]['Survived'].eq('Yes').mean()
+        par3 = train[train['Siblings_Spouse_On_Board'] == 3]['Survived'].eq('Yes').mean()
+        par4 = train[train['Siblings_Spouse_On_Board'] == 4]['Survived'].eq('Yes').mean()
+        par5 = train[train['Siblings_Spouse_On_Board'] >= 5]['Survived'].eq('Yes').mean()
+        rates = {0: par0, 1: par1, 2: par2, 3: par3, 4: par4, 5: par5}
+        highest_par = max(rates, key=rates.get)
+        lowest_par = min(rates, key=rates.get)
+        if highest_par == 5:
+            highest_par = "5 or more"
+        if lowest_par == 5:
+            lowest_par = "5 or more"
+        if highest_par == 0:
+            highest_par = "no"
+        if lowest_par == 0:
+            lowest_par = "no"
+        if par0 < par1 and par0 <par2 and par0 < par3:
+            reason="Passengers with no parents or children had a lower chance of survival than the ones with one or two parents or children."
+        elif par0 > par1 and par0 > par2 and par0 < par3:
+            reason="Passengers with no parents or children had a higher chance of survival than the ones with one or two parents or children."  
+        else:
+            reason="Having parents/children had no effect on the passenger survival."
+        if par0 <par4 and par0 <par5:
+            reason1="Passengers with no parents or children had a lower chance of survival than the ones with more than four three parents or children."
+        elif par0 > par4 and par0 > par5:
+            reason1="Passengers with no parents or children had a higher chance of survival than the ones with more than four parents or children."  
+        else:
+            reason1="Having parents/children had no effect on the passenger survival."
+        surv0 = train[(train['Parents_Children_On_Board'] == 0) & (train['Survived'] == 'Yes')].shape[0]
+        surv1 = train[(train['Parents_Children_On_Board'] == 1) & (train['Survived'] == 'Yes')].shape[0]
+        surv2 = train[(train['Parents_Children_On_Board'] == 2) & (train['Survived'] == 'Yes')].shape[0]
+        surv3 = train[(train['Parents_Children_On_Board'] == 3) & (train['Survived'] == 'Yes')].shape[0]
+        surv4 = train[(train['Parents_Children_On_Board'] == 4) & (train['Survived'] == 'Yes')].shape[0]
+        surv5 = train[(train['Parents_Children_On_Board'] >= 5) & (train['Survived'] == 'Yes')].shape[0]
+        nsurv0 = train[(train['Parents_Children_On_Board'] == 0) & (train['Survived'] == 'No')].shape[0]
+        nsurv1 = train[(train['Parents_Children_On_Board'] == 1) & (train['Survived'] == 'No')].shape[0]
+        nsurv2 = train[(train['Parents_Children_On_Board'] == 2) & (train['Survived'] == 'No')].shape[0]
+        nsurv3 = train[(train['Parents_Children_On_Board'] == 3) & (train['Survived'] == 'No')].shape[0]
+        nsurv4 = train[(train['Parents_Children_On_Board'] == 4) & (train['Survived'] == 'No')].shape[0]
+        nsurv5 = train[(train['Parents_Children_On_Board'] >= 5) & (train['Survived'] == 'No')].shape[0]
+        with st.expander("See Insights"):
+            st.write("The bar chart shows that passengers travelling with **no parents/children** had a survival rate of **" + str(round(par0 * 100,1)) +
+            "%**, while the passengers travelling with **1 parent/child** had a survival rate of **" + str(round(par1 * 100,1)) +
+            "%**. Passengers travelling with **2 parents/children** had a survival rate of **" + str(round(par2 * 100,1)) +
+            "%**. Meanwhile, passengers travelling with **3 parents/children** had a survival rate of **" + str(round(par3 * 100,1)) +
+            "%**. Passengers travelling with **4 parents/children** had a survival rate of **" + str(round(par4 * 100,1)) +
+            "%**. Lastly, passengers travelling with **5 or more parents/children** had a survival rate of **" + str(round(par5 * 100,1)) +
+            "%**. The highest survival rate was for passengers travelling with **" +
+            str(highest_par) + "** parent(s)/child(ren), while the lowest survival rate was for passengers travelling with **" +
+            str(lowest_par) + "** parent(s)/child(ren). " + str(reason) + " " + str(reason1) +
+            " There were **" + str(surv0) + "** survivors and **" + str(nsurv0) + "** non-survivors with **no parents/children**, while there were **" +
+            str(surv1) + "** survivors and **" + str(nsurv1) + "** non-survivors with **1 parent/child**, **" + str(surv2) +
+            "** survivors and **" + str(nsurv2) + "** non-survivors with **2 parents/children**, **" + str(surv3) +
+            "** survivors and **" + str(nsurv3) + "** non-survivors with **3 parents/children**, **" + str(surv4) +
+            "** survivors and **" + str(nsurv4) + "** non-survivors with **4 parents/children**, and **" + str(surv5) +
+            "** survivors and **" + str(nsurv5) + "** non-survivors with **5 or more parents/children**.")
+        
 train = train.drop(['Cabin'], axis=1)
 test = test.drop(['Cabin'], axis=1)  #feature engineering, optimising data for model training, for example remove unwanted columns like the Cabin.
 train = train.drop(['Ticket'], axis=1)
@@ -296,7 +435,7 @@ for x in range(len(test["Fare (GBP)"])):
 train['FareBand'] = pd.qcut(train['Fare (GBP)'], 4, 
                             labels=[1, 2, 3, 4]) #fare mapping
 test['FareBand'] = pd.qcut(test['Fare (GBP)'], 4, 
-                           labels=[1, 2, 3, 4])
+                           labels=[1, 2, 3, 4]) #fareband 1-4
 
 train = train.drop(['Fare (GBP)'], axis=1)
 test = test.drop(['Fare (GBP)'], axis=1)

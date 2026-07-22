@@ -1,4 +1,4 @@
-Passenger_ID,Survived,Class,Name,Gender,Age (Years),Siblings_Spouse_On_Board,Parents_Childern_On_Board,Ticket,Fare (GBP),Cabin,Embarked
+Passenger_ID,Survived,Class,Name,Gender,Age (Years),Siblings_Spouse_On_Board,Parents_Children_On_Board,Ticket,Fare (GBP),Cabin,Embarked
 1,No,Third,"Braund, Mr. Owen Harris",Male,22,1,0,A/5 21171,7.25,,Southampton
 2,Yes,First,"Cumings, Mrs. John Bradley (Florence Briggs Thayer)",Female,38,1,0,PC 17599,71.2833,C85,Cherbourg
 3,Yes,Third,"Heikkinen, Miss. Laina",Female,26,0,0,STON/O2. 3101282,7.925,,Southampton
